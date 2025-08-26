@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Krishu, missed you so much.</title>
+  <style>
+    :root {
+      --box-w: 60vw;
+      --box-h: 40vh;
+      --radius: 24px;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial;
+      background: blanchedalmond;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .box{
+      width: var(--box-w);
+      min-height: var(--box-h);
+      background: white;
+      border: 2px dashed black;
+      border-radius: var(--radius);
+      box-shadow: 7px 10px 9px darksalmon;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding: 22px;
+      gap: 14px;
+      box-sizing: border-box;
+      transition: transform .25s ease;
+    }
+
+    .box:focus-within{
+      transform: translateY(-2px);
+    }
+
+    .message {
+      font-size: clamp(16px, 1.6vw, 22px);
+      text-align:center;
+      line-height:1.3;
+      color:#333;
+      padding:0 8px;
+    }
+
+    .screenshot {
+      max-width: 80%;
+      max-height: 45%;
+      object-fit: cover;
+      border-radius: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .controls {
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    button.box-button{
+      border-radius: 30px;
+      width:110px;
+      height:44px;
+      border: 2px solid rgba(0,0,0,0.08);
+      background: #fbcfe8;
+      padding: 6px 12px;
+      font-weight:600;
+      cursor:pointer;
+      transition: transform .18s ease, background .18s ease, color .18s ease;
+    }
+
+    button.box-button:hover,
+    button.box-button:focus{
+      background: rgb(255,105,180);
+      color: white;
+      transform: scale(1.05);
+      outline: none;
+    }
+
+    .hidden { display:none !important; }
+
+    @media (max-width:600px){
+      .box { width: 92vw; min-height: 44vh; padding:16px; }
+      .screenshot { max-height: 40vh; }
+    }
+  </style>
+</head>
+<body>
+  <main class="box" role="region" aria-label="Special slideshow">
+    <div id="content" class="message">
+    💗💖 Hey… I know we couldn’t talk much recently, but I made something for you. Just take a moment, and go through this, it's straight from my heart Before you see this, just know, you’re special to me in ways I can’t always put into words. But I tried anyway… &lt;3
+    </div>
+    <img id="screenshot" class="screenshot hidden" alt="memory screenshot" />
+    <div class="controls">
+      <button id="nextBtn" class="box-button" aria-live="polite">Click Here</button>
+    </div>
+  </main>
+
+  <script>
+    // SLIDES: using your /screenshots/image1.png ... image7.png
+    const slides = [
+    //   { img: "screenshots/image1.png", text: "You're just too adorable not gonna lie. Of all the humans, you just have your own charm." },
+      { img: "https://i.postimg.cc/N0Y1hMGB/image1.webp", text: "You're just too adorable not gonna lie. Of all the humans, you just have your own charm." },
+    //   { img: "screenshots/image2.png", text: "I want to graduate from a university that teaches me how to maintain a bond forever with you." },
+      { img: "https://i.postimg.cc/WzQk5pfR/image2.webp", text: "I want to graduate from a university that teaches me how to maintain a bond forever with you." },
+    //   { img: "screenshots/image3.png", text: "It’s not about your account… it’s you. Your vibe, your personality, it’s just precious to me" },
+
+      { img: "https://i.postimg.cc/tT4WTMVc/image3.webp", text: "It’s not about your account… it’s you. Your vibe, your personality, it’s just precious to me" },
+
+
+    //   { img: "screenshots/image4.png", text: "Even when we weren’t that close, I still felt something special with you. Now, it’s even stronger. " },
+      { img: "https://i.postimg.cc/ZYgpbjYf/image4.webp", text: "Even when we weren’t that close, I still felt something special with you. Now, it’s even stronger. " },
+
+    //   { img: "screenshots/image5.png", text: "You know.... I feel the same." },
+
+      { img: "https://i.postimg.cc/sxBWPGm9/image5.webp", text: "You know.... I feel the same." },
+
+    //   { img: "screenshots/image6.png", text: "You always give your best, and you inspire me to grow too. Maybe teach me your methods aswell 😭😭" },
+      { img: "https://i.postimg.cc/MpJBRTQV/image6.png", text: "You always give your best, and you inspire me to grow too. Maybe teach me your methods aswell 😭😭" },
+
+
+    //   { img: "screenshots/image7.png", text: "Kab krogi raid? I want to make it an eternal and a beautiful memory of us." },
+      { img: "https://i.postimg.cc/5NCv6v6f/image7.webp", text: "Kab krogi raid? I want to make it an eternal and a beautiful memory of us." },
+
+      { img: null, text: "And finally… you really do mean the world to me <3. The way you care, the way you are, it’s just perfect. I feel different when you’re around, and even a day without talking feels incomplete. You’ve become a part of my life in the best way possible, Krishna <3." }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const content = document.getElementById('content');
+      const screenshot = document.getElementById('screenshot');
+      const nextBtn = document.getElementById('nextBtn');
+
+      let step = 0;
+
+      // preload images
+      slides.forEach(s => { if (s.img) { const im = new Image(); im.src = s.img; } });
+
+      function showSlide(i){
+        const slide = slides[i];
+        if (!slide) return;
+        if (slide.img) {
+          screenshot.src = slide.img;
+          screenshot.classList.remove('hidden');
+          screenshot.alt = slide.text || 'screenshot';
+        } else {
+          screenshot.classList.add('hidden');
+          screenshot.removeAttribute('src');
+        }
+        content.innerHTML = slide.text;
+      }
+
+      function advance(){
+        if (step < slides.length) {
+          showSlide(step);
+          step++;
+          if (step < slides.length) {
+            nextBtn.textContent = 'Next';
+          } else {
+            nextBtn.classList.add('hidden');
+          }
+        }
+        nextBtn.blur();
+      }
+
+      nextBtn.addEventListener('click', advance);
+
+      // keyboard support
+      document.addEventListener('keydown', (e) => {
+        if (['ArrowRight','Enter',' '].includes(e.key)) {
+          if (!nextBtn.classList.contains('hidden')) {
+            e.preventDefault();
+            advance();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
